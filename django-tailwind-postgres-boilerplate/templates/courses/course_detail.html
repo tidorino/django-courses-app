@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% block title %}{{ course.title }}{% endblock %}
+{% block content %}
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+
+  {% if not course.is_published %}
+    <div class="mb-6 rounded-md bg-amber-50 border border-amber-200 text-amber-800 text-sm px-4 py-3">
+      This course is unpublished — only visible to you as the instructor.
+    </div>
+  {% endif %}
+
+  <div class="grid gap-10 lg:grid-cols-3">
+    <div class="lg:col-span-2">
+      {% if course.category %}
+        <span class="text-xs font-medium text-slate-500 uppercase tracking-wide">{{ course.category.name }}</span>
+      {% endif %}
+      <h1 class="text-3xl font-bold mt-1">{{ course.title }}</h1>
+      <p class="mt-2 text-slate-600">by {{ course.instructor.username }}</p>
+
+      {% if is_enrolled or is_owner %}
+        <div class="mt-4">
+          <div class="flex items-center justify-between text-sm text-slate-600 mb-1">
+            <span>Your progress</span>
+            <span>{{ progress_percent }}%</span>
+          </div>
+          <div class="w-full h-2 rounded-full bg-slate-100 overflow-hidden">
+            <div class="h-full bg-emerald-500" style="width: {{ progress_percent }}%"></div>
+          </div>
+        </div>
+      {% endif %}
+
+      <p class="mt-6 text-slate-700 leading-relaxed">{{ course.description|linebreaks }}</p>
+
+      <h2 class="text-xl font-semibold mt-10 mb-4">Course content</h2>
+      <div class="space-y-4">
+        {% for module in course.modules.all %}
+          <div class="rounded-lg border border-slate-200">
+            <div class="px-4 py-3 bg-slate-50 border-b border-slate-200 font-medium">
+              {{ module.title }}
+            </div>
+            <ul class="divide-y divide-slate-100">
+              {% for lesson in module.lessons.all %}
+                <li class="px-4 py-3 flex items-center justify-between text-sm">
+                  {% if lesson.is_preview or is_enrolled or is_owner %}
+                    <a href="{% url 'courses:lesson_detail' course.slug lesson.slug %}" class="flex items-center gap-2 text-slate-800 hover:underline">
+                      {% if lesson.id in completed_lesson_ids %}
+                        <span class="text-emerald-600">✓</span>
+                      {% endif %}
+                      {{ lesson.title }}
+                    </a>
+                  {% else %}
+                    <span class="text-slate-400">{{ lesson.title }}</span>
+                  {% endif %}
+
+                  {% if lesson.is_preview %}
+                    <span class="text-xs font-medium text-emerald-700 bg-emerald-50 rounded-full px-2 py-0.5">Preview</span>
+                  {% elif not is_enrolled and not is_owner %}
+                    <span class="text-xs text-slate-400">🔒 Locked</span>
+                  {% endif %}
+                </li>
+              {% empty %}
+                <li class="px-4 py-3 text-sm text-slate-400">No lessons in this module yet.</li>
+              {% endfor %}
+            </ul>
+          </div>
+        {% empty %}
+          <p class="text-slate-500 text-sm">This course doesn't have any content yet.</p>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div>
+      <div class="rounded-xl border border-slate-200 bg-white p-6 sticky top-6">
+        <div class="text-3xl font-bold">
+          {% if course.price > 0 %}${{ course.price }}{% else %}Free{% endif %}
+        </div>
+        <p class="text-sm text-slate-500 mt-1">{{ course.lesson_count }} lesson{{ course.lesson_count|pluralize }}</p>
+
+        {% if is_owner %}
+          <a href="{% url 'courses:instructor_course_edit' course.slug %}"
+             class="mt-6 block text-center rounded-md bg-slate-900 text-white py-2.5 font-medium hover:bg-slate-700">
+            Manage this course
+          </a>
+        {% elif is_enrolled %}
+          <div class="mt-6 rounded-md bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm px-4 py-3 text-center">
+            You're enrolled ✓
+          </div>
+        {% elif user.is_authenticated %}
+          <form method="post" action="{% url 'courses:enroll' course.slug %}" class="mt-6">
+            {% csrf_token %}
+            <button type="submit" class="w-full rounded-md bg-slate-900 text-white py-2.5 font-medium hover:bg-slate-700">
+              Enroll now
+            </button>
+          </form>
+          <p class="text-xs text-slate-400 mt-2 text-center">Payment isn't wired up yet — enrolling grants instant access.</p>
+        {% else %}
+          <a href="{% url 'accounts:login' %}?next={{ request.path }}"
+             class="mt-6 block text-center rounded-md bg-slate-900 text-white py-2.5 font-medium hover:bg-slate-700">
+            Log in to enroll
+          </a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

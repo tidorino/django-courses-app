@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}{% if course %}Edit {{ course.title }}{% else %}New Course{% endif %}{% endblock %}
+{% block content %}
+<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+  <a href="{% url 'courses:instructor_dashboard' %}" class="text-sm text-slate-500 hover:text-slate-800">&larr; Dashboard</a>
+
+  <h1 class="text-2xl font-bold mt-4 mb-6">
+    {% if course %}Edit course{% else %}New course{% endif %}
+  </h1>
+
+  <form method="post" enctype="multipart/form-data" class="space-y-5">
+    {% csrf_token %}
+    {% for field in form %}
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-1">{{ field.label }}</label>
+        {% if field.name == "is_published" %}
+          <label class="flex items-center gap-2">
+            {{ field }}
+            <span class="text-sm text-slate-600">Published (visible to students)</span>
+          </label>
+        {% else %}
+          {{ field }}
+        {% endif %}
+        {% if field.errors %}<p class="text-sm text-red-600 mt-1">{{ field.errors|join:", " }}</p>{% endif %}
+      </div>
+    {% endfor %}
+    <button type="submit" class="rounded-md bg-slate-900 text-white px-5 py-2.5 font-medium hover:bg-slate-700">
+      {% if course %}Save changes{% else %}Create course{% endif %}
+    </button>
+  </form>
+
+  {% if course %}
+    <div class="mt-12">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-xl font-semibold">Modules &amp; lessons</h2>
+        <a href="{% url 'courses:instructor_module_create' course.slug %}"
+           class="text-sm rounded-md bg-slate-900 text-white px-3 py-1.5 font-medium hover:bg-slate-700">
+          + Add module
+        </a>
+      </div>
+
+      <div class="space-y-4">
+        {% for module in modules %}
+          <div class="rounded-lg border border-slate-200">
+            <div class="px-4 py-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+              <span class="font-medium">{{ module.title }}</span>
+              <div class="flex items-center gap-3">
+                <a href="{% url 'courses:instructor_lesson_create' course.slug module.id %}"
+                   class="text-xs text-slate-600 hover:text-slate-900 underline">+ Add lesson</a>
+                <form method="post" action="{% url 'courses:instructor_module_delete' course.slug module.id %}"
+                      onsubmit="return confirm('Delete this module and all its lessons?');">
+                  {% csrf_token %}
+                  <button type="submit" class="text-xs text-red-500 hover:text-red-700">Delete module</button>
+                </form>
+              </div>
+            </div>
+            <ul class="divide-y divide-slate-100">
+              {% for lesson in module.lessons.all %}
+                <li class="px-4 py-3 flex items-center justify-between text-sm">
+                  <span>
+                    {{ lesson.title }}
+                    {% if lesson.is_preview %}
+                      <span class="ml-2 text-xs font-medium text-emerald-700 bg-emerald-50 rounded-full px-2 py-0.5">Preview</span>
+                    {% endif %}
+                  </span>
+                  <div class="flex items-center gap-3">
+                    <a href="{% url 'courses:instructor_lesson_edit' course.slug lesson.id %}" class="text-slate-500 hover:text-slate-900 underline">Edit</a>
+                    <form method="post" action="{% url 'courses:instructor_lesson_delete' course.slug lesson.id %}"
+                          onsubmit="return confirm('Delete this lesson?');">
+                      {% csrf_token %}
+                      <button type="submit" class="text-red-500 hover:text-red-700">Delete</button>
+                    </form>
+                  </div>
+                </li>
+              {% empty %}
+                <li class="px-4 py-3 text-sm text-slate-400">No lessons yet.</li>
+              {% endfor %}
+            </ul>
+          </div>
+        {% empty %}
+          <p class="text-slate-500 text-sm">No modules yet — add one to start building lessons.</p>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

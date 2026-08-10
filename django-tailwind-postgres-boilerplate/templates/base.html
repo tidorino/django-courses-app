@@ -1,0 +1,61 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Django + Tailwind + Postgres{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body class="h-full bg-slate-50 text-slate-900 flex flex-col">
+
+  <nav class="bg-white border-b border-slate-200">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex h-16 items-center justify-between">
+        <a href="{% url 'core:home' %}" class="text-lg font-semibold tracking-tight">
+          MyLMSPlatformApp
+        </a>
+        <div class="flex items-center gap-6 text-sm font-medium text-slate-600">
+          <a href="{% url 'courses:course_list' %}" class="hover:text-slate-900">Courses</a>
+          {% if user.is_authenticated %}
+            {% if user.profile.is_instructor %}
+              <a href="{% url 'courses:instructor_dashboard' %}" class="hover:text-slate-900">Instructor Dashboard</a>
+            {% else %}
+              <a href="{% url 'courses:my_courses' %}" class="hover:text-slate-900">My Courses</a>
+            {% endif %}
+            <form method="post" action="{% url 'accounts:logout' %}" class="inline">
+              {% csrf_token %}
+              <button type="submit" class="hover:text-slate-900">Log out</button>
+            </form>
+            <span class="text-slate-400">{{ user.username }}</span>
+          {% else %}
+            <a href="{% url 'accounts:login' %}" class="hover:text-slate-900">Log in</a>
+            <a href="{% url 'accounts:signup' %}" class="rounded-md bg-slate-900 px-3 py-1.5 text-white hover:bg-slate-700">Sign up</a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main class="flex-1">
+    {% if messages %}
+      <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 mt-4 space-y-2">
+        {% for message in messages %}
+          <div class="rounded-md bg-blue-50 border border-blue-200 text-blue-800 text-sm px-4 py-3">
+            {{ message }}
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="border-t border-slate-200 bg-white">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 text-sm text-slate-500">
+      &copy; {% now "Y" %} MyApp. Built with Django, Tailwind CSS &amp; PostgreSQL.
+    </div>
+  </footer>
+
+</body>
+</html>

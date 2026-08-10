@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Instructor Dashboard{% endblock %}
+{% block content %}
+<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+  <div class="flex items-center justify-between mb-8">
+    <h1 class="text-3xl font-bold">Instructor Dashboard</h1>
+    <a href="{% url 'courses:instructor_course_create' %}"
+       class="rounded-md bg-slate-900 text-white px-4 py-2 text-sm font-medium hover:bg-slate-700">
+      + New course
+    </a>
+  </div>
+
+  {% if courses %}
+    <div class="space-y-4">
+      {% for course in courses %}
+        <a href="{% url 'courses:instructor_course_edit' course.slug %}"
+           class="block rounded-xl border border-slate-200 bg-white p-5 hover:shadow-md transition">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="font-semibold text-lg">{{ course.title }}</h3>
+              <p class="text-sm text-slate-500 mt-1">
+                {{ course.modules.all|length }} module{{ course.modules.all|length|pluralize }}
+                &middot; {{ course.lesson_count }} lesson{{ course.lesson_count|pluralize }}
+              </p>
+            </div>
+            <span class="text-xs font-medium rounded-full px-2.5 py-1
+              {% if course.is_published %}bg-emerald-50 text-emerald-700{% else %}bg-slate-100 text-slate-500{% endif %}">
+              {% if course.is_published %}Published{% else %}Draft{% endif %}
+            </span>
+          </div>
+        </a>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="text-slate-600">You haven't created any courses yet.</p>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Django
+*.sqlite3
+/staticfiles/
+media/
+
+# Env
+.env
+
+# Node / Tailwind
+node_modules/
+/static/css/styles.css
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store

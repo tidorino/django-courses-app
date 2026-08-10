@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}Home · MyLMSPlatformApp{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+  <div class="text-center">
+    <span class="inline-flex items-center rounded-full bg-emerald-100 px-3 py-1 text-xs font-medium text-emerald-800 mb-4">
+<!--      Boilerplate running ✓-->
+    </span>
+    <h1 class="text-4xl font-bold tracking-tight sm:text-5xl">
+      Learn something new today
+    </h1>
+    <p class="mt-4 text-lg text-slate-600 max-w-2xl mx-auto">
+      Browse courses built by instructors on this platform, and track your progress
+      as you go.
+    </p>
+    <a href="{% url 'courses:course_list' %}"
+       class="mt-8 inline-block rounded-md bg-slate-900 text-white px-6 py-3 font-medium hover:bg-slate-700">
+      Browse courses
+    </a>
+  </div>
+
+  <div class="mt-16 grid gap-6 sm:grid-cols-3">
+    <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+      <div class="h-10 w-10 rounded-lg bg-slate-900 text-white flex items-center justify-center font-bold">1</div>
+      <h3 class="mt-4 font-semibold">Backend</h3>
+      <p class="mt-1 text-sm text-slate-600">Django project with an env-based settings file, ready for apps and models.</p>
+    </div>
+    <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+      <div class="h-10 w-10 rounded-lg bg-slate-900 text-white flex items-center justify-center font-bold">2</div>
+      <h3 class="mt-4 font-semibold">Frontend</h3>
+      <p class="mt-1 text-sm text-slate-600">Tailwind CSS compiled from static_src/styles.css, scanning all templates.</p>
+    </div>
+    <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+      <div class="h-10 w-10 rounded-lg bg-slate-900 text-white flex items-center justify-center font-bold">3</div>
+      <h3 class="mt-4 font-semibold">Database</h3>
+      <p class="mt-1 text-sm text-slate-600">PostgreSQL via DATABASE_URL, with a safe SQLite fallback for first run.</p>
+    </div>
+  </div>
+</div>
+{% endblock %}

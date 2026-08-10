@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% load course_extras %}
+{% block title %}{{ lesson.title }} · {{ course.title }}{% endblock %}
+{% block content %}
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+  <a href="{% url 'courses:course_detail' course.slug %}" class="text-sm text-slate-500 hover:text-slate-800">
+    &larr; Back to {{ course.title }}
+  </a>
+
+  <div class="grid gap-10 lg:grid-cols-4 mt-4">
+    <div class="lg:col-span-3">
+      {% if is_enrolled %}
+        <div class="mb-6">
+          <div class="flex items-center justify-between text-sm text-slate-600 mb-1">
+            <span>Course progress</span>
+            <span>{{ progress_percent }}%</span>
+          </div>
+          <div class="w-full h-2 rounded-full bg-slate-100 overflow-hidden">
+            <div class="h-full bg-emerald-500" style="width: {{ progress_percent }}%"></div>
+          </div>
+        </div>
+      {% endif %}
+
+      <div class="flex items-center justify-between gap-4">
+        <h1 class="text-2xl font-bold">{{ lesson.title }}</h1>
+        {% if is_enrolled %}
+          <form method="post" action="{% url 'courses:toggle_lesson_complete' course.slug lesson.slug %}">
+            {% csrf_token %}
+            {% if is_completed %}
+              <button type="submit" class="text-sm rounded-md border border-emerald-300 bg-emerald-50 text-emerald-700 px-3 py-1.5 font-medium hover:bg-emerald-100 whitespace-nowrap">
+                ✓ Completed
+              </button>
+            {% else %}
+              <button type="submit" class="text-sm rounded-md border border-slate-300 px-3 py-1.5 font-medium hover:bg-slate-50 whitespace-nowrap">
+                Mark as complete
+              </button>
+            {% endif %}
+          </form>
+        {% endif %}
+      </div>
+
+      {% if lesson.video_url %}
+        <div class="mt-6 aspect-video rounded-lg overflow-hidden bg-black">
+          {% with embed_url=lesson.video_url|youtube_embed_url %}
+            {% if embed_url %}
+              <iframe
+                  class="w-full h-full"
+                  src="{{ embed_url }}"
+                  title="{{ lesson.title }}"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  referrerpolicy="strict-origin-when-cross-origin"
+                  allowfullscreen>
+              </iframe>
+            {% else %}
+              <video class="w-full h-full" controls src="{{ lesson.video_url }}"></video>
+            {% endif %}
+          {% endwith %}
+        </div>
+      {% endif %}
+
+      {% if lesson.text_content %}
+        <div class="mt-6 prose prose-slate max-w-none">
+          {{ lesson.text_content|linebreaks }}
+        </div>
+      {% endif %}
+
+      <div class="mt-8 flex items-center justify-between border-t border-slate-200 pt-6">
+        {% if previous_lesson %}
+          <a href="{% url 'courses:lesson_detail' course.slug previous_lesson.slug %}"
+             class="text-sm text-slate-600 hover:text-slate-900">&larr; {{ previous_lesson.title }}</a>
+        {% else %}
+          <span></span>
+        {% endif %}
+        {% if next_lesson %}
+          <a href="{% url 'courses:lesson_detail' course.slug next_lesson.slug %}"
+             class="text-sm rounded-md bg-slate-900 text-white px-4 py-2 font-medium hover:bg-slate-700">
+            Next: {{ next_lesson.title }} &rarr;
+          </a>
+        {% endif %}
+      </div>
+    </div>
+
+    <div>
+      <h2 class="text-sm font-semibold text-slate-500 uppercase tracking-wide mb-3">Course content</h2>
+      <div class="space-y-3">
+        {% for module in modules %}
+          <div>
+            <p class="text-sm font-medium text-slate-700">{{ module.title }}</p>
+            <ul class="mt-1 space-y-1">
+              {% for l in module.lessons.all %}
+                <li>
+                  <a href="{% url 'courses:lesson_detail' course.slug l.slug %}"
+                     class="flex items-center gap-2 text-sm rounded px-2 py-1 {% if l.id == lesson.id %}bg-slate-900 text-white{% else %}text-slate-600 hover:bg-slate-100{% endif %}">
+                    {% if l.id in completed_lesson_ids %}
+                      <span class="{% if l.id == lesson.id %}text-emerald-300{% else %}text-emerald-600{% endif %}">✓</span>
+                    {% endif %}
+                    {{ l.title }}
+                  </a>
+                </li>
+              {% endfor %}
+            </ul>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Courses{% endblock %}
+{% block content %}
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+  <h1 class="text-3xl font-bold mb-8">All Courses</h1>
+
+  {% if courses %}
+    <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      {% for course in courses %}
+        <a href="{{ course.get_absolute_url }}" class="group rounded-xl border border-slate-200 bg-white overflow-hidden hover:shadow-md transition">
+          <div class="h-36 bg-slate-100 flex items-center justify-center overflow-hidden">
+            {% if course.cover_image %}
+              <img src="{{ course.cover_image.url }}" alt="{{ course.title }}" class="w-full h-full object-cover">
+            {% else %}
+              <span class="text-slate-400 text-sm">No cover image</span>
+            {% endif %}
+          </div>
+          <div class="p-5">
+            {% if course.category %}
+              <span class="text-xs font-medium text-slate-500 uppercase tracking-wide">{{ course.category.name }}</span>
+            {% endif %}
+            <h3 class="mt-1 font-semibold text-lg group-hover:underline">{{ course.title }}</h3>
+            <p class="mt-1 text-sm text-slate-600 line-clamp-2">{{ course.description }}</p>
+            <div class="mt-4 flex items-center justify-between">
+              <span class="text-sm text-slate-500">{{ course.instructor.username }}</span>
+              <span class="font-semibold">
+                {% if course.price > 0 %}${{ course.price }}{% else %}Free{% endif %}
+              </span>
+            </div>
+          </div>
+        </a>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="text-slate-600">No courses published yet.</p>
+  {% endif %}
+</div>
+{% endblock %}
